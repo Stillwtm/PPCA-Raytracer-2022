@@ -10,3 +10,5 @@
 ## 简介
 
 - 初步学习Rust
+- 完成Book1
+- 效果图见Action-Artifacts

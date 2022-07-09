@@ -1,18 +1,24 @@
 pub mod sphere;
 pub mod hittable_list;
 
-use super::ray::{Ray, Vec3, Point3};
+use crate::utility::*;
+use crate::material::{
+    Material,
+    lambertian::Lambertian,
+};
 
-#[derive(Default, Clone, Copy, PartialEq)]
-pub struct HitRecord {
+// #[derive(Default)]
+pub struct HitRecord<'a> {
     pub p: Point3,
     pub normal: Vec3,
+    // pub mat_ptr: Box<dyn Material>,
+    pub mat_ptr: &'a dyn Material,
     pub t: f64,
     pub fornt_face: bool,
 }
 
-impl HitRecord {
-    fn set_face_normal(&mut self, r: &Ray, outward_normal: &Vec3){
+impl<'a> HitRecord<'a> {
+    fn set_face_normal(&mut self, r: &Ray, outward_normal: &Vec3) {
         self.fornt_face = Vec3::dot(&r.dir, outward_normal) < 0.0;
         self.normal = if self.fornt_face { *outward_normal } else { -*outward_normal };
     }
