@@ -1,5 +1,6 @@
 use crate::utility::*;
 
+#[derive(Clone)]
 pub struct Camera {
     origin: Point3,
     lower_left_corner: Point3,

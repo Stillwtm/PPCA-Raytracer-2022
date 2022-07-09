@@ -11,6 +11,21 @@ pub struct Vec3 {
 pub type Color = Vec3;
 pub type Point3 = Vec3;
 
+impl Color {
+    pub fn calc_color(&self, sample_per_pixel: usize) -> Self {
+        let scale = 1.0 / sample_per_pixel as f64;
+        Color {
+            x: ((self.x * scale).sqrt() * 256.0).clamp(0.0, 255.999),
+            y: ((self.y * scale).sqrt() * 256.0).clamp(0.0, 255.999),
+            z: ((self.z * scale).sqrt() * 256.0).clamp(0.0, 255.999),
+        }
+    }
+
+    pub fn to_u8_array(self) -> [u8; 3] {
+        [self.x as u8, self.y as u8, self.z as u8]
+    }
+}
+
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
@@ -202,7 +217,6 @@ impl Mul<Vec3> for Vec3 {
     }
 }
 
-// Vec3 * f64
 impl Mul<f64> for Vec3 {
     type Output = Vec3;
 
@@ -215,7 +229,6 @@ impl Mul<f64> for Vec3 {
     }
 }
 
-// f64 * Vec3
 impl Mul<Vec3> for f64 {
     type Output = Vec3;
 

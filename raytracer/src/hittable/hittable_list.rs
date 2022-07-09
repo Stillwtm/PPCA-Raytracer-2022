@@ -1,14 +1,15 @@
 use super::{HitRecord, Hittable};
-use crate::ray::Ray;
+use crate::utility::*;
+use std::sync::Arc;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct HittableList {
-    objects: Vec<Box<dyn Hittable>>,
+    objects: Vec<Arc<dyn Hittable>>,
 }
 
 #[allow(unused)]
 impl HittableList {
-    pub fn add(&mut self, object: Box<dyn Hittable>) {
+    pub fn add(&mut self, object: Arc<dyn Hittable>) {
         self.objects.push(object);
     }
 

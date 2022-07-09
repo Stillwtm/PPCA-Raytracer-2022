@@ -1,5 +1,5 @@
 use super::*;
-use crate::ray::{Point3, Ray, Vec3};
+use crate::utility::*;
 
 pub struct Sphere<T: Material> {
     center: Point3,
@@ -17,7 +17,7 @@ impl<T: Material> Sphere<T> {
     }
 }
 
-impl<T: Material + 'static + Clone> Hittable for Sphere<T> {
+impl<T: Material + Sync + Send + 'static> Hittable for Sphere<T> {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = r.orig - self.center;
         let a = r.dir.length_squared();
