@@ -1,14 +1,7 @@
-use std::ops::{
-    Add, AddAssign, 
-    Sub, SubAssign,  
-    Mul, MulAssign, 
-    Div, DivAssign, 
-    Neg,
-};
-use rand::{Rng, random};
+use rand::{random, Rng};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
-#[derive(Default, Clone, Copy, PartialEq)]
-#[derive(Debug)]
+#[derive(Default, Clone, Copy, PartialEq, Debug)]
 pub struct Vec3 {
     pub x: f64,
     pub y: f64,
@@ -55,7 +48,7 @@ impl Vec3 {
         loop {
             let p = Vec3::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0), 0.0);
             if p.length_squared() < 1.0 {
-                return p
+                return p;
             }
         }
     }
@@ -79,13 +72,13 @@ impl Vec3 {
         let r_out_parallel = -(1.0 - r_out_perp.length_squared()).abs().sqrt() * *n;
         r_out_perp + r_out_parallel
     }
- 
+
     pub fn length(&self) -> f64 {
         self.length_squared().sqrt()
     }
 
     pub fn length_squared(&self) -> f64 {
-        self.x * self.x + self.y * self.y + self.z * self.z    
+        self.x * self.x + self.y * self.y + self.z * self.z
     }
 
     pub fn dot(u: &Self, v: &Self) -> f64 {
@@ -113,9 +106,9 @@ impl Add<Vec3> for Vec3 {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        Self { 
-            x: self.x + rhs.x, 
-            y: self.y + rhs.y, 
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
             z: self.z + rhs.z,
         }
     }
@@ -125,9 +118,9 @@ impl Add<f64> for Vec3 {
     type Output = Self;
 
     fn add(self, rhs: f64) -> Self::Output {
-        Self { 
-            x: self.x + rhs, 
-            y: self.y + rhs, 
+        Self {
+            x: self.x + rhs,
+            y: self.y + rhs,
             z: self.z + rhs,
         }
     }
@@ -137,8 +130,8 @@ impl AddAssign<Vec3> for Vec3 {
     fn add_assign(&mut self, rhs: Self) {
         *self = Self {
             x: self.x + rhs.x,
-            y : self.y + rhs.y,
-            z : self.z + rhs.z,
+            y: self.y + rhs.y,
+            z: self.z + rhs.z,
         };
     }
 }
@@ -155,7 +148,7 @@ impl AddAssign<f64> for Vec3 {
 
 impl Sub<Vec3> for Vec3 {
     type Output = Self;
-    
+
     fn sub(self, rhs: Self) -> Self::Output {
         Self {
             x: self.x - rhs.x,
@@ -169,9 +162,9 @@ impl Sub<f64> for Vec3 {
     type Output = Self;
 
     fn sub(self, rhs: f64) -> Self::Output {
-        Self { 
-            x: self.x - rhs, 
-            y: self.y - rhs, 
+        Self {
+            x: self.x - rhs,
+            y: self.y - rhs,
             z: self.z - rhs,
         }
     }
@@ -181,8 +174,8 @@ impl SubAssign<Vec3> for Vec3 {
     fn sub_assign(&mut self, rhs: Self) {
         *self = Self {
             x: self.x - rhs.x,
-            y : self.y - rhs.y,
-            z : self.z - rhs.z,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
         };
     }
 }

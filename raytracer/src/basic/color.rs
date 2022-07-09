@@ -1,8 +1,8 @@
 use crate::utility::*;
-use std::{fs::File, process::exit};
-use image::{ImageBuffer, RgbImage};
 use console::style;
+use image::{ImageBuffer, RgbImage};
 use indicatif::{ProgressBar, ProgressStyle};
+use std::{fs::File, process::exit};
 
 pub fn write_color(pixel_color: &Color, sample_per_pixel: usize) -> [u8; 3] {
     let mut r = pixel_color.x;
@@ -16,13 +16,15 @@ pub fn write_color(pixel_color: &Color, sample_per_pixel: usize) -> [u8; 3] {
     b = (b * scale).sqrt();
 
     // Return the [0, 255] value of each color component
-    [(256.0 * r.clamp(0.0, 0.999)) as u8, 
-    (256.0 * g.clamp(0.0, 0.999)) as u8, 
-    (256.0 * b.clamp(0.0, 0.999)) as u8]
+    [
+        (256.0 * r.clamp(0.0, 0.999)) as u8,
+        (256.0 * g.clamp(0.0, 0.999)) as u8,
+        (256.0 * b.clamp(0.0, 0.999)) as u8,
+    ]
 
     // // Write the [0, 255] value of each color component
-    // print!("{} {} {}\n", (256.0 * clamp(r, 0.0, 0.999)) as u8, 
-    //                     (256.0 * clamp(g, 0.0, 0.999)) as u8, 
+    // print!("{} {} {}\n", (256.0 * clamp(r, 0.0, 0.999)) as u8,
+    //                     (256.0 * clamp(g, 0.0, 0.999)) as u8,
     //                     (256.0 * clamp(b, 0.0, 0.999)) as u8);
 }
 

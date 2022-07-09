@@ -16,7 +16,7 @@ impl Camera {
         look_form: Point3,
         look_at: Point3,
         vup: Vec3,
-        vfov: f64,    // vertical field of view in degrees
+        vfov: f64, // vertical field of view in degrees
         aspect_ratio: f64,
         aperture: f64,
         focus_dist: f64,
@@ -25,7 +25,7 @@ impl Camera {
         let h = (theta / 2.0).tan();
         let viewport_height = 2.0 * h;
         let viewport_width = aspect_ratio * viewport_height;
-        
+
         let w = (look_form - look_at).unit_vector();
         let u = Vec3::cross(&vup, &w).unit_vector();
         let v = Vec3::cross(&w, &u);
@@ -40,9 +40,8 @@ impl Camera {
             u,
             v,
             w,
-            lower_left_corner: origin - horizontal / 2.0 - 
-                vertical / 2.0 - focus_dist * w,
-            lens_radius: aperture / 2.0
+            lower_left_corner: origin - horizontal / 2.0 - vertical / 2.0 - focus_dist * w,
+            lens_radius: aperture / 2.0,
         }
     }
 
@@ -52,8 +51,9 @@ impl Camera {
 
         Ray {
             orig: self.origin + offset,
-            dir: self.lower_left_corner + s * self.horizontal + 
-                t * self.vertical - self.origin - offset,
+            dir: self.lower_left_corner + s * self.horizontal + t * self.vertical
+                - self.origin
+                - offset,
         }
     }
 }

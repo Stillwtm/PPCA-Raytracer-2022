@@ -1,7 +1,6 @@
-pub use super::vec3::{Vec3, Point3};
+pub use super::vec3::{Point3, Vec3};
 
-#[derive(Default, Clone, Copy, PartialEq)]
-#[derive(Debug)]
+#[derive(Default, Clone, Copy, PartialEq, Debug)]
 pub struct Ray {
     pub orig: Point3,
     pub dir: Vec3,
@@ -9,10 +8,7 @@ pub struct Ray {
 
 impl Ray {
     pub fn new(orig: Point3, dir: Vec3) -> Self {
-        Self {
-            orig, 
-            dir,
-        }
+        Self { orig, dir }
     }
 
     pub fn at(&self, t: f64) -> Point3 {

@@ -1,5 +1,5 @@
-use crate::ray::{Ray, Vec3, Point3};
 use super::*;
+use crate::ray::{Point3, Ray, Vec3};
 
 pub struct Sphere<T: Material> {
     center: Point3,
@@ -38,7 +38,7 @@ impl<T: Material + 'static + Clone> Hittable for Sphere<T> {
                 return None;
             }
         }
-        
+
         let mut rec = HitRecord {
             t: root,
             p: r.at(root),
@@ -46,7 +46,7 @@ impl<T: Material + 'static + Clone> Hittable for Sphere<T> {
             normal: Vec3::default(),
             fornt_face: bool::default(),
         };
-        
+
         let outward_normal = (rec.p - self.center) / self.radius;
         rec.set_face_normal(&r, &outward_normal);
 

@@ -1,9 +1,9 @@
-pub mod lambertian;
 pub mod dielectric;
+pub mod lambertian;
 pub mod metal;
 
-use crate::utility::*;
 use crate::hittable::HitRecord;
+use crate::utility::*;
 use lambertian::Lambertian;
 
 pub trait Material {

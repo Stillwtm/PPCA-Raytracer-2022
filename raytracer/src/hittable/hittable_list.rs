@@ -1,5 +1,5 @@
-use super::{Hittable, HitRecord};
-use crate::ray::{Ray};
+use super::{HitRecord, Hittable};
+use crate::ray::Ray;
 
 #[derive(Default)]
 pub struct HittableList {

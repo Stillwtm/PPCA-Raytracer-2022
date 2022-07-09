@@ -1,6 +1,6 @@
-use crate::utility::*;
-use crate::hittable::HitRecord;
 use super::Material;
+use crate::hittable::HitRecord;
+use crate::utility::*;
 
 #[derive(Copy, Clone)]
 pub struct Metal {
@@ -23,7 +23,7 @@ impl Material for Metal {
 
 impl Metal {
     pub fn new(albedo: Color, fuzz: f64) -> Metal {
-        Self { 
+        Self {
             albedo,
             fuzz: fuzz.min(1.0),
         }

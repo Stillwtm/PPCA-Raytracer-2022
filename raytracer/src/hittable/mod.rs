@@ -1,11 +1,8 @@
-pub mod sphere;
 pub mod hittable_list;
+pub mod sphere;
 
+use crate::material::{lambertian::Lambertian, Material};
 use crate::utility::*;
-use crate::material::{
-    Material,
-    lambertian::Lambertian,
-};
 
 // #[derive(Default)]
 pub struct HitRecord<'a> {
@@ -20,7 +17,11 @@ pub struct HitRecord<'a> {
 impl<'a> HitRecord<'a> {
     fn set_face_normal(&mut self, r: &Ray, outward_normal: &Vec3) {
         self.fornt_face = Vec3::dot(&r.dir, outward_normal) < 0.0;
-        self.normal = if self.fornt_face { *outward_normal } else { -*outward_normal };
+        self.normal = if self.fornt_face {
+            *outward_normal
+        } else {
+            -*outward_normal
+        };
     }
 }
 

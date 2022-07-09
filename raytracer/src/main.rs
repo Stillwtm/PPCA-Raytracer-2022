@@ -1,29 +1,17 @@
 #![allow(unused)]
-mod vec3;
-mod ray;
-mod hittable;
-mod utility;
 mod basic;
+mod hittable;
 pub mod material;
+mod ray;
 mod scene;
+mod utility;
+mod vec3;
 
+use crate::hittable::{hittable_list::HittableList, sphere::Sphere, Hittable};
 use crate::material::lambertian;
+use crate::material::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal, Material};
 use crate::utility::*;
-use basic::{
-    camera::Camera,
-    color,
-};
-use crate::hittable::{
-    hittable_list::HittableList,
-    Hittable,
-    sphere::Sphere,
-};
-use crate::material::{
-    Material,
-    lambertian::Lambertian,
-    metal::Metal,
-    dielectric::Dielectric,
-};
+use basic::{camera::Camera, color};
 use scene::*;
 
 use std::{fs::File, process::exit};
@@ -40,13 +28,13 @@ fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
         return Color::new(0.0, 0.0, 0.0);
     }
 
-    if let Some(rec) = world.hit(r, 0.001, f64::INFINITY) {        
+    if let Some(rec) = world.hit(r, 0.001, f64::INFINITY) {
         let mut attenuation = Vec3::default();
         return if let Some(scattered) = rec.mat_ptr.scatter(&r, &rec, &mut attenuation) {
             attenuation * ray_color(&scattered, &world, depth - 1)
         } else {
             Color::new(0.0, 0.0, 0.0)
-        }
+        };
     }
 
     let unit_direction: Vec3 = r.dir.unit_vector();
@@ -59,8 +47,8 @@ fn main() {
     const ASPECT_RATIO: f64 = 3.0 / 2.0;
     const IMAGE_WIDTH: usize = 1200;
     const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as usize;
-    const IMGAE_QUALITY: u8 = 60;
-    const SAMPLE_PER_PIXEL:usize = 500;
+    const IMGAE_QUALITY: u8 = 100;
+    const SAMPLE_PER_PIXEL: usize = 500;
     const MAX_DEPTH: usize = 50;
     let path = "output/book1.jpg";
 
@@ -68,19 +56,6 @@ fn main() {
 
     let world = random_ball_scene();
 
-    // let mut world = HittableList::default();
-    
-    // let material_ground = Lambertian::new(Color::new(0.8, 0.8, 0.0));
-    // let material_center = Lambertian::new(Color::new(0.1, 0.2, 0.5));
-    // let material_left = Dielectric::new(1.5);
-    // let material_right = Metal::new(Color::new(0.8, 0.6, 0.2), 0.0);
-
-    // world.add(Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0, material_ground)));
-    // world.add(Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5, material_center)));
-    // world.add(Box::new(Sphere::new(Point3::new(-1.0, 0.0, -1.0), 0.5, material_left)));
-    // world.add(Box::new(Sphere::new(Point3::new(-1.0, 0.0, -1.0), -0.45, material_left)));
-    // world.add(Box::new(Sphere::new(Point3::new(1.0, 0.0, -1.0), 0.5, material_right)));
-    
     // Camera
 
     let look_from = Point3::new(13.0, 2.0, 3.0);
@@ -88,11 +63,19 @@ fn main() {
     let vup = Vec3::new(0.0, 1.0, 0.0);
     let dist_to_focus = 10.0;
     let aperture = 0.1;
-    
-    let cam = Camera::new(look_from, look_at, vup, 20.0, ASPECT_RATIO, aperture, dist_to_focus);
+
+    let cam = Camera::new(
+        look_from,
+        look_at,
+        vup,
+        20.0,
+        ASPECT_RATIO,
+        aperture,
+        dist_to_focus,
+    );
 
     // Render and Output
-    
+
     print!("{}[2J", 27 as char); // Clear screen
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char); // Set cursor position as 1,1
 
@@ -127,12 +110,6 @@ fn main() {
                 let r = cam.get_ray(u, v);
                 pixel_color += ray_color(&r, &world, MAX_DEPTH);
             }
-            // color::write_color(&pixel_color, SAMPLE_PER_PIXEL);
-            // let pixel_color = [
-            //     (y as f32 / height as f32 * 255.).floor() as u8,
-            //     ((x + height - y) as f32 / (height + width) as f32 * 255.).floor() as u8,
-            //     (x as f32 / height as f32 * 255.).floor() as u8,
-            // ];
             let pixel = img.get_pixel_mut(i as u32, (IMAGE_HEIGHT - j - 1) as u32);
             *pixel = image::Rgb(color::write_color(&pixel_color, SAMPLE_PER_PIXEL));
             progress.inc(1);
@@ -144,7 +121,10 @@ fn main() {
     println!("Ouput image as \"{}\"", style(path).yellow());
     let output_image = image::DynamicImage::ImageRgb8(img);
     let mut output_file = File::create(path).unwrap();
-    match output_image.write_to(&mut output_file, image::ImageOutputFormat::Jpeg(IMGAE_QUALITY)) {
+    match output_image.write_to(
+        &mut output_file,
+        image::ImageOutputFormat::Jpeg(IMGAE_QUALITY),
+    ) {
         Ok(_) => {}
         // Err(_) => panic!("Outputting image fails."),
         Err(_) => println!("{}", style("Outputting image fails.").red()),
