@@ -24,7 +24,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use rand::Rng;
 
 fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
-    if depth <= 0 {
+    if depth == 0 {
         return Color::new(0.0, 0.0, 0.0);
     }
 
