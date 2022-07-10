@@ -11,4 +11,5 @@
 
 - 初步学习Rust
 - 完成Book1
+- 支持多线程渲染
 - 效果图见Action-Artifacts
