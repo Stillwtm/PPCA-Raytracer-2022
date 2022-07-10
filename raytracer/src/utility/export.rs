@@ -21,7 +21,7 @@ pub fn export_jpg_to_file(path: &str, img_quality: u8, img: RgbImage) {
     }
 }
 
-pub fn convert_vec_to_img(v: &Vec<Color>, width: u32, height: u32) -> RgbImage {
+pub fn convert_vec_to_img(v: &[Color], width: u32, height: u32) -> RgbImage {
     println!("🕒 Converting results to image...");
     let mut img: RgbImage = ImageBuffer::new(width, height);
     let mut pixel_id = 0;
