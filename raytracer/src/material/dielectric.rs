@@ -31,7 +31,7 @@ impl Material for Dielectric {
             Vec3::refract(&unit_direction, &rec.normal, refraction_ratio)
         };
 
-        Some(Ray::new(rec.p, direction))
+        Some(Ray::new(rec.p, direction, r_in.tm))
     }
 }
 

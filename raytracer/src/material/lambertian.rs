@@ -17,7 +17,7 @@ impl Material for Lambertian {
         }
 
         *attenuation = self.albedo;
-        Some(Ray::new(rec.p, scatter_direction))
+        Some(Ray::new(rec.p, scatter_direction, r_in.tm))
     }
 }
 

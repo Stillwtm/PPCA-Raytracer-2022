@@ -1,10 +1,11 @@
 use super::{HitRecord, Hittable};
 use crate::utility::*;
 use std::sync::Arc;
+use crate::bvh::aabb::AABB;
 
 #[derive(Default, Clone)]
 pub struct HittableList {
-    objects: Vec<Arc<dyn Hittable>>,
+    pub objects: Vec<Arc<dyn Hittable>>,
 }
 
 #[allow(unused)]
@@ -31,5 +32,29 @@ impl Hittable for HittableList {
         }
 
         opt_rec
+    }
+
+    fn bounding_box(&self, st_time: f64, ed_time: f64) -> Option<AABB> {
+        if self.objects.is_empty() {
+            return None;
+        }
+
+        let mut output_box = AABB::default();
+        let mut first_box = true;
+        for object in self.objects.iter() {
+            match object.bounding_box(st_time, ed_time) {
+                Some(tmp_box) => {
+                    output_box = if first_box {
+                        first_box = false;
+                        tmp_box
+                    } else {
+                        AABB::surrounding_box(&output_box, &tmp_box)
+                    }
+                },
+                None => return None,
+            }
+        }
+
+        Some(output_box)
     }
 }

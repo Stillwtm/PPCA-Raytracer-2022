@@ -1,5 +1,6 @@
 use super::*;
 use crate::utility::*;
+use crate::bvh::aabb::AABB;
 
 pub struct Sphere<T: Material> {
     center: Point3,
@@ -17,7 +18,7 @@ impl<T: Material> Sphere<T> {
     }
 }
 
-impl<T: Material + Sync + Send + 'static> Hittable for Sphere<T> {
+impl<T: Material + Sync + Send> Hittable for Sphere<T> {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = r.orig - self.center;
         let a = r.dir.length_squared();
@@ -51,5 +52,12 @@ impl<T: Material + Sync + Send + 'static> Hittable for Sphere<T> {
         rec.set_face_normal(&r, &outward_normal);
 
         Some(rec)
+    }
+
+    fn bounding_box(&self, st_time: f64, ed_time: f64) -> Option<AABB> {
+        Some(AABB::new(
+            self.center - self.radius,
+            self.center + self.radius,
+        ))
     }
 }

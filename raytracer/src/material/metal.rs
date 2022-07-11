@@ -11,7 +11,7 @@ pub struct Metal {
 impl Material for Metal {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Color) -> Option<Ray> {
         let reflected = Vec3::reflect(&r_in.dir.unit_vector(), &rec.normal);
-        let scattered = Ray::new(rec.p, reflected + self.fuzz * Vec3::rand_in_unit_sphere());
+        let scattered = Ray::new(rec.p, reflected + self.fuzz * Vec3::rand_in_unit_sphere(), r_in.tm);
         *attenuation = self.albedo;
         if Vec3::dot(&scattered.dir, &rec.normal) > 0.0 {
             Some(scattered)
