@@ -1,11 +1,11 @@
 #![allow(unused)]
 mod basic;
+mod bvh;
 mod hittable;
 pub mod material;
 mod scene;
-mod utility;
-mod bvh;
 mod texture;
+mod utility;
 
 use crate::hittable::{hittable_list::HittableList, sphere::Sphere, Hittable};
 use crate::material::lambertian;
@@ -29,10 +29,10 @@ use rand::Rng;
 fn main() {
     // Image
     const ASPECT_RATIO: f64 = 16.0 / 9.0;
-    const IMAGE_WIDTH: usize = 400;
+    const IMAGE_WIDTH: usize = 1920;
     const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as usize;
     const IMGAE_QUALITY: u8 = 100;
-    const SAMPLE_PER_PIXEL: usize = 100;
+    const SAMPLE_PER_PIXEL: usize = 500;
     const MAX_DEPTH: usize = 50;
     const THREAD_NUM: usize = 7;
     let path = "output/output.jpg";

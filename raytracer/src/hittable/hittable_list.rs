@@ -1,7 +1,7 @@
 use super::{HitRecord, Hittable};
+use crate::bvh::aabb::AABB;
 use crate::utility::*;
 use std::sync::Arc;
-use crate::bvh::aabb::AABB;
 
 #[derive(Default, Clone)]
 pub struct HittableList {
@@ -50,7 +50,7 @@ impl Hittable for HittableList {
                     } else {
                         AABB::surrounding_box(&output_box, &tmp_box)
                     }
-                },
+                }
                 None => return None,
             }
         }

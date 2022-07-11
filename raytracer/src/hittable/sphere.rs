@@ -1,6 +1,6 @@
 use super::*;
-use crate::utility::*;
 use crate::bvh::aabb::AABB;
+use crate::utility::*;
 
 pub struct Sphere<T: Material> {
     center: Point3,

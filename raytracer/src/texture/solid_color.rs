@@ -1,5 +1,5 @@
-use crate::utility::*;
 use super::Texture;
+use crate::utility::*;
 
 pub struct SolidColor {
     color_value: Color,
@@ -11,8 +11,8 @@ impl SolidColor {
     }
 
     pub fn new_rgb(r: f64, g: f64, b: f64) -> Self {
-        Self { color_value: Color::new(r, g, b) }
+        Self {
+            color_value: Color::new(r, g, b),
+        }
     }
 }
-
-

@@ -1,6 +1,6 @@
 pub mod hittable_list;
-pub mod sphere;
 pub mod instance;
+pub mod sphere;
 
 use crate::bvh::aabb::AABB;
 use crate::material::{lambertian::Lambertian, Material};

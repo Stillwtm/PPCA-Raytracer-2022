@@ -1,11 +1,11 @@
-use crate::utility::*;
-use crate::hittable::{Hittable, HitRecord, hittable_list::HittableList};
 use super::aabb::AABB;
+use crate::hittable::{hittable_list::HittableList, HitRecord, Hittable};
+use crate::utility::*;
 
+use rand::Rng;
 use std::borrow::Borrow;
 use std::ops::Deref;
 use std::sync::Arc;
-use rand::Rng;
 
 pub struct BvhNode {
     left: Option<Arc<dyn Hittable>>,
@@ -24,8 +24,9 @@ impl BvhNode {
         let comparator = |a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>| {
             f64::partial_cmp(
                 &(a.bounding_box(st_time, ed_time).unwrap().minimum[axis]),
-                &(b.bounding_box(st_time, ed_time).unwrap().maximum[axis])
-            ).unwrap()
+                &(b.bounding_box(st_time, ed_time).unwrap().maximum[axis]),
+            )
+            .unwrap()
         };
 
         let object_span = objects.len();
@@ -40,21 +41,37 @@ impl BvhNode {
             let right = objects[1].clone();
             let node_box = AABB::surrounding_box(
                 &left.bounding_box(st_time, ed_time).unwrap(),
-                &right.bounding_box(st_time, ed_time).unwrap()
+                &right.bounding_box(st_time, ed_time).unwrap(),
             );
             match comparator(&left, &right) {
-                std::cmp::Ordering::Less => Self { left: Some(left), right: Some(right), node_box },
-                _ => Self { left: Some(right), right: Some(left), node_box },
+                std::cmp::Ordering::Less => Self {
+                    left: Some(left),
+                    right: Some(right),
+                    node_box,
+                },
+                _ => Self {
+                    left: Some(right),
+                    right: Some(left),
+                    node_box,
+                },
             }
         } else {
             objects.sort_unstable_by(comparator);
             let mid = object_span / 2;
-            let left = Arc::new(BvhNode::new_from_vec(&mut objects[0..mid], st_time, ed_time));
-            let right = Arc::new(BvhNode::new_from_vec(&mut objects[mid..object_span], st_time, ed_time));
+            let left = Arc::new(BvhNode::new_from_vec(
+                &mut objects[0..mid],
+                st_time,
+                ed_time,
+            ));
+            let right = Arc::new(BvhNode::new_from_vec(
+                &mut objects[mid..object_span],
+                st_time,
+                ed_time,
+            ));
             Self {
                 node_box: AABB::surrounding_box(
                     &left.bounding_box(st_time, ed_time).unwrap(),
-                    &right.bounding_box(st_time, ed_time).unwrap()
+                    &right.bounding_box(st_time, ed_time).unwrap(),
                 ),
                 left: Some(left),
                 right: Some(right),

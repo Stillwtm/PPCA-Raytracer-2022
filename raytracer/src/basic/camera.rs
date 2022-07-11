@@ -1,4 +1,4 @@
-use rand::{Rng};
+use rand::Rng;
 
 use crate::utility::*;
 
@@ -12,8 +12,8 @@ pub struct Camera {
     v: Vec3,
     w: Vec3,
     lens_radius: f64,
-    time0: f64,  // shutter open time
-    time1: f64,  // shutter close time
+    time0: f64, // shutter open time
+    time1: f64, // shutter close time
 }
 
 impl Camera {
