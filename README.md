@@ -10,6 +10,13 @@
 ## 简介
 
 - 初步学习Rust
+
 - 完成Book1
+
 - 支持多线程渲染
-- 效果图见Action-Artifacts
+
+- 完成BVH和Motion Blur
+
+- 效果图预览
+
+  ![](https://s2.loli.net/2022/07/11/yDoVIJRFO7zaUpm.jpg)
