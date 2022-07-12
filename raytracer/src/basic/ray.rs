@@ -18,21 +18,25 @@ impl Ray {
     }
 }
 
-pub fn ray_color(r: &Ray, world: &HittableList, depth: usize) -> Color {
+pub fn ray_color(r: &Ray, background: &Color, world: &HittableList, depth: usize) -> Color {
     if depth == 0 {
         return Color::new(0.0, 0.0, 0.0);
     }
 
     if let Some(rec) = world.hit(r, 0.001, f64::INFINITY) {
         let mut attenuation = Vec3::default();
+        let emmited = rec.mat_ptr.emitted(rec.u, rec.v, rec.p);
         return if let Some(scattered) = rec.mat_ptr.scatter(&r, &rec, &mut attenuation) {
-            attenuation * ray_color(&scattered, &world, depth - 1)
+            emmited + attenuation * ray_color(&scattered, background, &world, depth - 1)
         } else {
-            Color::new(0.0, 0.0, 0.0)
+            emmited
         };
     }
 
-    let unit_direction: Vec3 = r.dir.unit_vector();
-    let t = 0.5 * (unit_direction.y + 1.0);
-    (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
+    *background
+
+    // A sky background
+    // let unit_direction: Vec3 = r.dir.unit_vector();
+    // let t = 0.5 * (unit_direction.y + 1.0);
+    // (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 1.0)
 }

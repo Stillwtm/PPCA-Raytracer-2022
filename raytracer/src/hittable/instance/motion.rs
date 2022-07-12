@@ -27,6 +27,7 @@ impl<T: Hittable> Hittable for Motion<T> {
         let tmp_ray = Ray::new(r.orig - offset, r.dir, r.tm);
         if let Some(mut rec) = self.obj.hit(&tmp_ray, t_min, t_max) {
             rec.p += offset; // 将光线的移动还原
+            rec.set_face_normal(&tmp_ray, rec.normal);
             Some(rec)
         } else {
             None

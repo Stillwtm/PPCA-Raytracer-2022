@@ -1,6 +1,7 @@
 use super::Texture;
 use crate::utility::*;
 
+#[derive(Clone, Copy)]
 pub struct SolidColor {
     color_value: Color,
 }
@@ -14,5 +15,11 @@ impl SolidColor {
         Self {
             color_value: Color::new(r, g, b),
         }
+    }
+}
+
+impl Texture for SolidColor {
+    fn value(&self, u: f64, v: f64, p: Point3) -> Color {
+        self.color_value
     }
 }

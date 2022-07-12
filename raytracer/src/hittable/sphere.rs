@@ -2,6 +2,7 @@ use super::*;
 use crate::bvh::aabb::AABB;
 use crate::utility::*;
 
+#[derive(Clone)]
 pub struct Sphere<T: Material> {
     center: Point3,
     radius: f64,
@@ -15,6 +16,14 @@ impl<T: Material> Sphere<T> {
             radius,
             mat,
         }
+    }
+
+    // p is a given point on the unit sphere
+    pub fn get_sphere_uv(p: Point3) -> (f64, f64) {
+        let theta = f64::acos(-p.y);
+        let phi = f64::atan2(-p.z, p.x) + PI;
+
+        (phi / (2.0 * PI), theta / PI)
     }
 }
 
@@ -40,16 +49,21 @@ impl<T: Material + Sync + Send> Hittable for Sphere<T> {
             }
         }
 
+        let p = r.at(root);
+        let outward_normal = (p - self.center) / self.radius;
+        let (u, v) = Sphere::<T>::get_sphere_uv(outward_normal);
+
         let mut rec = HitRecord {
             t: root,
-            p: r.at(root),
+            p,
             mat_ptr: &self.mat,
             normal: Vec3::default(),
+            u,
+            v,
             fornt_face: bool::default(),
         };
 
-        let outward_normal = (rec.p - self.center) / self.radius;
-        rec.set_face_normal(&r, &outward_normal);
+        rec.set_face_normal(&r, outward_normal);
 
         Some(rec)
     }

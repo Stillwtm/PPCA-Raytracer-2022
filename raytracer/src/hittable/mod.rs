@@ -1,3 +1,6 @@
+pub mod aarect;
+pub mod constant_medium;
+pub mod cuboid;
 pub mod hittable_list;
 pub mod instance;
 pub mod sphere;
@@ -12,18 +15,18 @@ pub struct HitRecord<'a> {
     // pub mat_ptr: Box<dyn Material>,
     pub mat_ptr: &'a dyn Material,
     pub t: f64,
-    // u: f64,    // 材质uv
-    // v: f64,
+    pub u: f64, // texture uv
+    pub v: f64,
     pub fornt_face: bool,
 }
 
 impl<'a> HitRecord<'a> {
-    fn set_face_normal(&mut self, r: &Ray, outward_normal: &Vec3) {
-        self.fornt_face = Vec3::dot(&r.dir, outward_normal) < 0.0;
+    fn set_face_normal(&mut self, r: &Ray, outward_normal: Vec3) {
+        self.fornt_face = Vec3::dot(&r.dir, &outward_normal) < 0.0;
         self.normal = if self.fornt_face {
-            *outward_normal
+            outward_normal
         } else {
-            -*outward_normal
+            -outward_normal
         };
     }
 }

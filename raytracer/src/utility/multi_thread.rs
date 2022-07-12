@@ -3,6 +3,7 @@ use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 
 use crate::basic::camera::Camera;
 use crate::basic::ray;
+use crate::hittable::hittable_list::HittableList;
 use crate::scene;
 use crate::utility::*;
 use std::sync::mpsc::{self, Receiver};
@@ -19,6 +20,7 @@ pub fn gen_img_with_multi_threads(
     sample_per_pixel: usize,
     max_depth: usize,
     camera: Camera,
+    world: HittableList,
 ) -> Vec<(JoinHandle<()>, Receiver<Vec<Color>>)> {
     println!("🕐 Generating image...");
     println!(
@@ -34,8 +36,6 @@ pub fn gen_img_with_multi_threads(
 
     let section_row_num = img_height / thread_num;
 
-    let world = scene::random_ball_scene();
-
     for thread_id in 0..thread_num {
         // one thread handles row: [row_beg, row_end)
         let row_beg = thread_id * section_row_num;
@@ -47,7 +47,7 @@ pub fn gen_img_with_multi_threads(
 
         let (tx, rx) = mpsc::channel();
         let section_world = world.clone();
-        // let section_world = scene::random_ball_scene();
+        let background = Color::new(0.0, 0.0, 0.0);
         let cam = camera.clone();
         let progress = multiprogress.add(create_progress_bar(
             (img_width * (row_end - row_beg)) as u64,
@@ -65,7 +65,8 @@ pub fn gen_img_with_multi_threads(
                             let u = (x as f64 + rng.gen::<f64>()) / (img_width - 1) as f64;
                             let v = (y as f64 + rng.gen::<f64>()) / (img_height - 1) as f64;
                             let r = cam.get_ray(u, v);
-                            pixel_color += ray::ray_color(&r, &section_world, max_depth);
+                            pixel_color +=
+                                ray::ray_color(&r, &background, &section_world, max_depth);
                         }
                         section_pixel_color.push(pixel_color.calc_color(sample_per_pixel));
                         progress.inc(1);
