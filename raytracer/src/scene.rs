@@ -3,6 +3,7 @@ use crate::bvh::bvh_node::BvhNode;
 use crate::hittable::constant_medium::ConstantMedium;
 use crate::hittable::hittable_list;
 use crate::hittable::instance::motion::Motion;
+use crate::hittable::instance::rotation::RotationX;
 use crate::hittable::instance::{rotation::RotationY, translation::Translation};
 use crate::hittable::{
     aarect::{XYRect, XZRect, YZRect},
@@ -238,11 +239,11 @@ pub fn cornell_box(aspect_ratio: f64) -> (HittableList, Camera) {
     let red = Lambertian::new_form_color(Color::new(0.65, 0.05, 0.05));
     let white = Lambertian::new_form_color(Color::new(0.73, 0.73, 0.73));
     let green = Lambertian::new_form_color(Color::new(0.12, 0.45, 0.15));
-    let light = DiffuseLight::new_form_color(Color::new(7., 7., 7.));
+    let light = DiffuseLight::new_form_color(Color::new(15., 15., 15.));
 
     objects.add(Arc::new(YZRect::new(0., 555., 0., 555., 555., green)));
     objects.add(Arc::new(YZRect::new(0., 555., 0., 555., 0., red)));
-    objects.add(Arc::new(XZRect::new(113., 443., 127., 432., 554., light)));
+    objects.add(Arc::new(XZRect::new(213., 343., 227., 332., 554., light)));
     objects.add(Arc::new(XZRect::new(0., 555., 0., 555., 0., white)));
     objects.add(Arc::new(XZRect::new(0., 555., 0., 555., 555., white)));
     objects.add(Arc::new(XYRect::new(0., 555., 0., 555., 555., white)));
@@ -254,7 +255,7 @@ pub fn cornell_box(aspect_ratio: f64) -> (HittableList, Camera) {
     );
     let box1 = RotationY::new(box1, 15.);
     let box1 = Translation::new(box1, Point3::new(265., 0., 295.));
-    // objects.add(Arc::new(box1));
+    objects.add(Arc::new(box1));
 
     let box2 = Cuboid::new(
         Point3::new(0., 0., 0.),
@@ -263,18 +264,18 @@ pub fn cornell_box(aspect_ratio: f64) -> (HittableList, Camera) {
     );
     let box2 = RotationY::new(box2, -18.);
     let box2 = Translation::new(box2, Point3::new(130., 0., 65.));
-    // objects.add(Arc::new(box2));
+    objects.add(Arc::new(box2));
 
-    objects.add(Arc::new(ConstantMedium::new_from_color(
-        box1,
-        0.01,
-        Color::new(0.0, 0.0, 0.0),
-    )));
-    objects.add(Arc::new(ConstantMedium::new_from_color(
-        box2,
-        0.01,
-        Color::new(1.0, 1.0, 1.0),
-    )));
+    // objects.add(Arc::new(ConstantMedium::new_from_color(
+    //     box1,
+    //     0.01,
+    //     Color::new(0.0, 0.0, 0.0),
+    // )));
+    // objects.add(Arc::new(ConstantMedium::new_from_color(
+    //     box2,
+    //     0.01,
+    //     Color::new(1.0, 1.0, 1.0),
+    // )));
 
     let bvh = Arc::new(BvhNode::new_from_list(&mut objects, 0.0, 1.0));
     world.add(bvh);
@@ -442,10 +443,15 @@ pub fn test_scene(aspect_ratio: f64) -> (HittableList, Camera) {
     // objects.add(Arc::new(XYRect::new(0., 555., 0., 555., 555., white)));
 
     // let teapot = ObjModel::new_from_file("models/teapot.obj", 1.5, None);
-    // let teapot = ObjModel::new_from_file("models/buddha.obj", 175., None);
-    let teapot =
-        ObjModel::new_from_file_with_texture("models/patrick.obj", 175., "models/patrick.png");
-    let teapot = Translation::new(RotationY::new(teapot, 180.), Vec3::new(227., 50., 227.));
+    let pertext = NoiseTexture::new(0.1);
+    let mat = Lambertian::new(pertext);
+    let teapot = ObjModel::new_from_file("models/head.obj", 10., mat);
+    // let teapot =
+    // ObjModel::new_from_file_with_texture("models/patrick.obj", 175., "models/patrick.png");
+    // let teapot = Translation::new(RotationY::new(teapot, 180.), Vec3::new(227., 50., 227.));
+    
+    let teapot = Translation::new(RotationY::new(RotationX::new(teapot, -90.), 180.), Vec3::new(527., 50., 527.));
+    
     objects.add(Arc::new(teapot));
 
     // Camera

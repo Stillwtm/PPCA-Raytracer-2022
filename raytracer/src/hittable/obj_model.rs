@@ -23,7 +23,10 @@ pub struct ObjModel {
 }
 
 impl ObjModel {
-    pub fn new_from_file(file_obj: &str, scale: f64) -> Self {
+    pub fn new_from_file<T>(file_obj: &str, scale: f64, mat: T) -> Self
+    where
+        T: Material + Send + Sync + Clone + 'static,
+    {
         println!("🎰 Imortinging model...");
 
         let mut tris_list = HittableList::default();
@@ -45,8 +48,8 @@ impl ObjModel {
                         let j = mesh.indices[idx * 3 + 1] as usize;
                         let k = mesh.indices[idx * 3 + 2] as usize;
 
-                        // 处理材质
-                        let mat = Lambertian::new(SolidColor::new(Color::new(0.5, 0.5, 0.5)));
+                        // // 处理材质
+                        // let mat = Lambertian::new(SolidColor::new(Color::new(0.5, 0.5, 0.5)));
 
                         // 处理模型三角面
                         tris_list.add(Arc::new(Triangle::new(
@@ -67,7 +70,7 @@ impl ObjModel {
                                     mesh.positions[3 * k + 2] as f64,
                                 ) * scale,
                             ],
-                            mat,
+                            mat.clone(),
                         )));
                     }
                 }
