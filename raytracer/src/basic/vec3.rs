@@ -1,3 +1,5 @@
+use std::f64::consts::PI;
+
 use rand::{random, Rng};
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
@@ -72,6 +74,19 @@ impl Vec3 {
 
     pub fn rand_unit_vector() -> Self {
         Vec3::rand_in_unit_sphere().unit_vector()
+    }
+
+    pub fn rand_cos_dir() -> Self {
+        let mut rng = rand::thread_rng();
+        let r1 = rng.gen::<f64>();
+        let r2 = rng.gen::<f64>();
+        let z = (1.0 - r2).sqrt();
+
+        let phi = 2.0 * PI * r1;
+        let x = phi.cos() * r2.sqrt();
+        let y = phi.sin() * r2.sqrt();
+
+        Self { x, y, z }
     }
 
     pub fn near_zero(&self) -> bool {

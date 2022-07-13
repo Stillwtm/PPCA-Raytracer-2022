@@ -449,9 +449,12 @@ pub fn test_scene(aspect_ratio: f64) -> (HittableList, Camera) {
     // let teapot =
     // ObjModel::new_from_file_with_texture("models/patrick.obj", 175., "models/patrick.png");
     // let teapot = Translation::new(RotationY::new(teapot, 180.), Vec3::new(227., 50., 227.));
-    
-    let teapot = Translation::new(RotationY::new(RotationX::new(teapot, -90.), 180.), Vec3::new(527., 50., 527.));
-    
+
+    let teapot = Translation::new(
+        RotationY::new(RotationX::new(teapot, -90.), 180.),
+        Vec3::new(527., 50., 527.),
+    );
+
     objects.add(Arc::new(teapot));
 
     // Camera

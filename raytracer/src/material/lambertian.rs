@@ -1,4 +1,5 @@
 use super::Material;
+use crate::basic::onb::ONB;
 use crate::hittable::HitRecord;
 use crate::texture::{solid_color::SolidColor, Texture};
 use crate::utility::*;
@@ -10,6 +11,9 @@ pub struct Lambertian<T: Texture> {
 
 impl<T: Texture> Material for Lambertian<T> {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Color) -> Option<Ray> {
+        // let uvw = ONB::build_from_w(rec.normal);
+        // let direction = uvw.local(Vec3::rand_cos_dir());
+
         let mut scatter_direction = rec.normal + Vec3::rand_unit_vector();
 
         // Catch degenerate scatter direction
