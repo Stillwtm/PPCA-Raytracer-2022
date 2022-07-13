@@ -124,8 +124,8 @@ impl ObjModel {
                             u1,
                             v1,
                             u2 - u1,
-                            v2 - v1,
                             u3 - u1,
+                            v2 - v1,
                             v3 - v1,
                             img.clone(),
                         );

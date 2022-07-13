@@ -19,4 +19,5 @@
 
 - 效果图预览
 
-  ![output](https://s2.loli.net/2022/07/13/vtIg8ezUEuXO1Bo.jpg)
+
+![smooth_patrick](https://s2.loli.net/2022/07/13/RO7g5wrohTnLDKp.jpg)

@@ -34,10 +34,10 @@ use rand::Rng;
 fn main() {
     // Image
     const ASPECT_RATIO: f64 = 1.0; //16.0 / 9;
-    const IMAGE_WIDTH: usize = 1080;
+    const IMAGE_WIDTH: usize = 512;
     const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as usize;
     const IMGAE_QUALITY: u8 = 100;
-    const SAMPLE_PER_PIXEL: usize = 100;
+    const SAMPLE_PER_PIXEL: usize = 50;
     const MAX_DEPTH: usize = 50;
     const THREAD_NUM: usize = 8;
     let path = "output/output.jpg";
