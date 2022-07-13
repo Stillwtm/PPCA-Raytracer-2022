@@ -73,7 +73,7 @@ where
                     t,
                     p: r.at(t),
                     normal: Vec3::new(1.0, 0.0, 0.0),
-                    fornt_face: true,
+                    front_face: true,
                     mat_ptr: &self.phase_function,
                     u: f64::default(),
                     v: f64::default(),

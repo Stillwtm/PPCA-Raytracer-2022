@@ -74,7 +74,7 @@ impl<T: Material + Sync + Send> Hittable for Triangle<T> {
                     v: gamma,
                     mat_ptr: &self.mat,
                     normal: Vec3::default(),
-                    fornt_face: bool::default(),
+                    front_face: bool::default(),
                 };
                 rec.set_face_normal(r, self.normal);
 

@@ -20,8 +20,9 @@ pub fn gen_img_with_multi_threads(
     sample_per_pixel: usize,
     max_depth: usize,
     background: Color,
-    camera: Camera,
     world: HittableList,
+    lights: HittableList,
+    camera: Camera,
 ) -> Vec<(JoinHandle<()>, Receiver<Vec<Color>>)> {
     println!("🕐 Generating image...");
     println!(
@@ -48,6 +49,7 @@ pub fn gen_img_with_multi_threads(
 
         let (tx, rx) = mpsc::channel();
         let section_world = world.clone();
+        let section_lights = lights.clone();
         let cam = camera.clone();
         let progress = multiprogress.add(create_progress_bar(
             (img_width * (row_end - row_beg)) as u64,
@@ -65,8 +67,13 @@ pub fn gen_img_with_multi_threads(
                             let u = (x as f64 + rng.gen::<f64>()) / (img_width - 1) as f64;
                             let v = (y as f64 + rng.gen::<f64>()) / (img_height - 1) as f64;
                             let r = cam.get_ray(u, v);
-                            pixel_color +=
-                                ray::ray_color(&r, &background, &section_world, max_depth);
+                            pixel_color += ray::ray_color(
+                                &r,
+                                &background,
+                                &section_world,
+                                &section_lights,
+                                max_depth,
+                            );
                         }
                         section_pixel_color.push(pixel_color.calc_color(sample_per_pixel));
                         progress.inc(1);

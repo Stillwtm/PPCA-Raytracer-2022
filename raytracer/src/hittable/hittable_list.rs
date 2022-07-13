@@ -1,3 +1,5 @@
+use rand::prelude::SliceRandom;
+
 use super::{HitRecord, Hittable};
 use crate::bvh::aabb::AABB;
 use crate::utility::*;
@@ -56,5 +58,22 @@ impl Hittable for HittableList {
         }
 
         Some(output_box)
+    }
+
+    fn pdf_value(&self, orig: &Point3, v: &Vec3) -> f64 {
+        let weight = 1. / self.objects.len() as f64;
+        let mut ave_pdf = 0.0;
+
+        for obj in &self.objects {
+            ave_pdf += obj.pdf_value(orig, v) * weight;
+        }
+        ave_pdf
+    }
+
+    fn random(&self, orig: Vec3) -> Vec3 {
+        self.objects
+            .choose(&mut rand::thread_rng())
+            .unwrap()
+            .random(orig)
     }
 }

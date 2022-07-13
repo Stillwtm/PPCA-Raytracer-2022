@@ -19,13 +19,13 @@ pub struct HitRecord<'a> {
     pub t: f64,
     pub u: f64, // texture uv
     pub v: f64,
-    pub fornt_face: bool,
+    pub front_face: bool,
 }
 
 impl<'a> HitRecord<'a> {
     fn set_face_normal(&mut self, r: &Ray, outward_normal: Vec3) {
-        self.fornt_face = Vec3::dot(&r.dir, &outward_normal) < 0.0;
-        self.normal = if self.fornt_face {
+        self.front_face = Vec3::dot(&r.dir, &outward_normal) < 0.0;
+        self.normal = if self.front_face {
             outward_normal
         } else {
             -outward_normal
@@ -36,4 +36,10 @@ impl<'a> HitRecord<'a> {
 pub trait Hittable: Send + Sync {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
     fn bounding_box(&self, st_time: f64, ed_time: f64) -> Option<AABB>;
+    fn pdf_value(&self, orig: &Point3, v: &Vec3) -> f64 {
+        0.0
+    }
+    fn random(&self, orig: Vec3) -> Vec3 {
+        Vec3::new(1.0, 0.0, 0.0)
+    }
 }

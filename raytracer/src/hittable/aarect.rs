@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use super::{HitRecord, Hittable};
 use crate::bvh::aabb::AABB;
 use crate::material::Material;
@@ -76,7 +78,7 @@ impl<T: Material + Sync + Send> Hittable for XYRect<T> {
             p: r.at(t),
             mat_ptr: &self.mat,
             t,
-            fornt_face: bool::default(),
+            front_face: bool::default(),
             normal: Vec3::default(),
         };
         let outward_normal = Vec3::new(0.0, 0.0, 1.0);
@@ -134,12 +136,33 @@ impl<T: Material + Sync + Send> Hittable for XZRect<T> {
             p: r.at(t),
             mat_ptr: &self.mat,
             t,
-            fornt_face: bool::default(),
+            front_face: bool::default(),
             normal: Vec3::default(),
         };
         let outward_normal = Vec3::new(0.0, 1.0, 0.0);
         rec.set_face_normal(r, outward_normal);
         Some(rec)
+    }
+
+    fn pdf_value(&self, orig: &Point3, v: &Vec3) -> f64 {
+        if let Some(rec) = self.hit(&Ray::new(*orig, *v, 0.0), 0.001, INFINITY) {
+            let area = ((self.x1 - self.x0) * (self.z1 - self.z0)).abs();
+            let distance_squared = rec.t.powi(2) * v.length_squared();
+            let cosine = Vec3::dot(&v, &rec.normal).abs() / v.length();
+
+            distance_squared / (cosine * area)
+        } else {
+            0.0
+        }
+    }
+
+    fn random(&self, orig: Vec3) -> Vec3 {
+        let mut rng = rand::thread_rng();
+        Point3::new(
+            rng.gen_range(self.x0..self.x1),
+            self.y,
+            rng.gen_range(self.z0..self.z1),
+        ) - orig
     }
 }
 
@@ -192,7 +215,7 @@ impl<T: Material + Sync + Send> Hittable for YZRect<T> {
             p: r.at(t),
             mat_ptr: &self.mat,
             t,
-            fornt_face: bool::default(),
+            front_face: bool::default(),
             normal: Vec3::default(),
         };
         let outward_normal = Vec3::new(1.0, 0.0, 0.0);

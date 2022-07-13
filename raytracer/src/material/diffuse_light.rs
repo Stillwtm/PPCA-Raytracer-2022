@@ -1,4 +1,5 @@
 use super::Material;
+use crate::hittable::HitRecord;
 use crate::texture::solid_color::SolidColor;
 use crate::texture::Texture;
 use crate::utility::*;
@@ -23,16 +24,11 @@ impl DiffuseLight<SolidColor> {
 }
 
 impl<T: Texture> Material for DiffuseLight<T> {
-    fn scatter(
-        &self,
-        r_in: &Ray,
-        rec: &crate::hittable::HitRecord,
-        attenuation: &mut Color,
-    ) -> Option<Ray> {
-        None
-    }
-
-    fn emitted(&self, u: f64, v: f64, p: Point3) -> Color {
-        self.emit.value(u, v, p)
+    fn emitted(&self, r_in: &Ray, rec: &HitRecord, u: f64, v: f64, p: Point3) -> Color {
+        if rec.front_face {
+            self.emit.value(u, v, p)
+        } else {
+            Color::new(0.0, 0.0, 0.0)
+        }
     }
 }

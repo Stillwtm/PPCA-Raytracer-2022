@@ -1,4 +1,4 @@
-use super::Material;
+use super::{Material, ScatterRecord};
 use crate::hittable::HitRecord;
 use crate::utility::*;
 
@@ -9,19 +9,27 @@ pub struct Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Color) -> Option<Ray> {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<ScatterRecord> {
         let reflected = Vec3::reflect(&r_in.dir.unit_vector(), &rec.normal);
-        let scattered = Ray::new(
-            rec.p,
-            reflected + self.fuzz * Vec3::rand_in_unit_sphere(),
-            r_in.tm,
-        );
-        *attenuation = self.albedo;
-        if Vec3::dot(&scattered.dir, &rec.normal) > 0.0 {
-            Some(scattered)
-        } else {
-            None
-        }
+
+        Some(ScatterRecord::new_spec(
+            Ray::new(
+                rec.p,
+                reflected + self.fuzz * Vec3::rand_in_unit_sphere(),
+                r_in.tm,
+            ),
+            self.albedo,
+        ))
+        // let scattered = Ray::new(
+        //     rec.p,
+        //     reflected + self.fuzz * Vec3::rand_in_unit_sphere(),
+        //     r_in.tm,
+        // );
+        // if Vec3::dot(&scattered.dir, &rec.normal) > 0.0 {
+        //     Some(ScatterRecord::new_spec(scattered, self.albedo))
+        // } else {
+        //     None
+        // }
     }
 }
 

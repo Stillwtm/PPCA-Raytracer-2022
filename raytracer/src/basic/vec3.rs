@@ -89,6 +89,19 @@ impl Vec3 {
         Self { x, y, z }
     }
 
+    pub fn rand_to_sphere(radius: f64, dist_sqrd: f64) -> Self {
+        let mut rng = rand::thread_rng();
+        let r1 = rng.gen::<f64>();
+        let r2 = rng.gen::<f64>();
+        let z = 1.0 + r2 * ((1.0 - radius.powi(2) / dist_sqrd).sqrt() - 1.0);
+
+        let phi = 2.0 * PI * r1;
+        let x = phi.cos() * (1.0 - z.powi(2)).sqrt();
+        let y = phi.sin() * (1.0 - z.powi(2)).sqrt();
+
+        Self { x, y, z }
+    }
+
     pub fn near_zero(&self) -> bool {
         const EPS: f64 = 1e-8;
         self.x.abs() < EPS && self.y.abs() < EPS && self.z.abs() < EPS

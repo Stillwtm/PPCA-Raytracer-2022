@@ -2,6 +2,7 @@ use crate::basic::camera::Camera;
 use crate::bvh::bvh_node::BvhNode;
 use crate::hittable::constant_medium::ConstantMedium;
 use crate::hittable::hittable_list;
+use crate::hittable::instance::flip_face::FlipFace;
 use crate::hittable::instance::motion::Motion;
 use crate::hittable::instance::rotation::RotationX;
 use crate::hittable::instance::{rotation::RotationY, translation::Translation};
@@ -231,9 +232,10 @@ pub fn earth(aspect_ratio: f64) -> (HittableList, Camera) {
     (objects, cam)
 }
 
-pub fn cornell_box(aspect_ratio: f64) -> (HittableList, Camera) {
+pub fn cornell_box(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
     // World
     let mut objects = HittableList::default();
+    let mut lights = HittableList::default();
     let mut world = HittableList::default();
 
     let red = Lambertian::new_form_color(Color::new(0.65, 0.05, 0.05));
@@ -243,11 +245,19 @@ pub fn cornell_box(aspect_ratio: f64) -> (HittableList, Camera) {
 
     objects.add(Arc::new(YZRect::new(0., 555., 0., 555., 555., green)));
     objects.add(Arc::new(YZRect::new(0., 555., 0., 555., 0., red)));
-    objects.add(Arc::new(XZRect::new(213., 343., 227., 332., 554., light)));
+    objects.add(Arc::new(FlipFace::new(XZRect::new(
+        213.,
+        343.,
+        227.,
+        332.,
+        554.,
+        light.clone(),
+    ))));
     objects.add(Arc::new(XZRect::new(0., 555., 0., 555., 0., white)));
     objects.add(Arc::new(XZRect::new(0., 555., 0., 555., 555., white)));
     objects.add(Arc::new(XYRect::new(0., 555., 0., 555., 555., white)));
 
+    let aluminum = Metal::new(Color::new(0.8, 0.85, 0.88), 0.0);
     let box1 = Cuboid::new(
         Point3::new(0., 0., 0.),
         Point3::new(160., 330., 165.),
@@ -257,15 +267,23 @@ pub fn cornell_box(aspect_ratio: f64) -> (HittableList, Camera) {
     let box1 = Translation::new(box1, Point3::new(265., 0., 295.));
     objects.add(Arc::new(box1));
 
-    let box2 = Cuboid::new(
-        Point3::new(0., 0., 0.),
-        Point3::new(165., 165., 165.),
-        white,
-    );
-    let box2 = RotationY::new(box2, -18.);
-    let box2 = Translation::new(box2, Point3::new(130., 0., 65.));
-    objects.add(Arc::new(box2));
+    let glass = Dielectric::new(1.5);
+    objects.add(Arc::new(Sphere::new(
+        Point3::new(190., 90., 190.),
+        90.,
+        glass,
+    )));
 
+    // let box2 = Cuboid::new(
+    //     Point3::new(0., 0., 0.),
+    //     Point3::new(165., 165., 165.),
+    //     white,
+    // );
+    // let box2 = RotationY::new(box2, -18.);
+    // let box2 = Translation::new(box2, Point3::new(130., 0., 65.));
+    // objects.add(Arc::new(box2));
+
+    // Volume Smoke
     // objects.add(Arc::new(ConstantMedium::new_from_color(
     //     box1,
     //     0.01,
@@ -277,8 +295,16 @@ pub fn cornell_box(aspect_ratio: f64) -> (HittableList, Camera) {
     //     Color::new(1.0, 1.0, 1.0),
     // )));
 
-    let bvh = Arc::new(BvhNode::new_from_list(&mut objects, 0.0, 1.0));
-    world.add(bvh);
+    // let bvh = Arc::new(BvhNode::new_from_list(&mut objects, 0.0, 1.0));
+    // world.add(bvh);
+
+    // Lights
+    lights.add(Arc::new(XZRect::new(213., 343., 227., 332., 554., light)));
+    lights.add(Arc::new(Sphere::new(
+        Point3::new(190., 90., 190.),
+        90.,
+        glass,
+    )));
 
     // Camera
     let look_from = Point3::new(278.0, 278.0, -800.0);
@@ -299,7 +325,7 @@ pub fn cornell_box(aspect_ratio: f64) -> (HittableList, Camera) {
         1.0,
     );
 
-    (world, cam)
+    (objects, lights, cam)
 }
 
 pub fn book2_final_scene(aspect_ratio: f64) -> (HittableList, Camera) {

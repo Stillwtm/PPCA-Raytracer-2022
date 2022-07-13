@@ -7,7 +7,8 @@
 mod basic;
 mod bvh;
 mod hittable;
-pub mod material;
+mod material;
+mod pdf;
 mod scene;
 mod texture;
 mod utility;
@@ -34,10 +35,10 @@ use rand::Rng;
 fn main() {
     // Image
     const ASPECT_RATIO: f64 = 1.0; //16.0 / 9;
-    const IMAGE_WIDTH: usize = 1024;
+    const IMAGE_WIDTH: usize = 1200;
     const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as usize;
     const IMGAE_QUALITY: u8 = 100;
-    const SAMPLE_PER_PIXEL: usize = 400;
+    const SAMPLE_PER_PIXEL: usize = 1000;
     const MAX_DEPTH: usize = 50;
     const THREAD_NUM: usize = 8;
     let path = "output/output.jpg";
@@ -47,7 +48,7 @@ fn main() {
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char); // Set cursor position as 1,1
 
     // Generate scene
-    let (world, cam) = scene::test_scene(ASPECT_RATIO);
+    let (world, lights, cam) = scene::cornell_box(ASPECT_RATIO);
 
     // Generate image
     let thread_pool = multi_thread::gen_img_with_multi_threads(
@@ -56,9 +57,10 @@ fn main() {
         IMAGE_HEIGHT,
         SAMPLE_PER_PIXEL,
         MAX_DEPTH,
-        Color::new(0.7, 0.7, 0.7),
-        cam,
+        Color::new(0.0, 0.0, 0.0),
         world,
+        lights,
+        cam,
     );
     let output_pixel_color = multi_thread::collect_thread_results(thread_pool);
 

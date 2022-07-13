@@ -1,6 +1,7 @@
-use super::Material;
+use super::{Material, ScatterRecord};
 use crate::basic::onb::ONB;
 use crate::hittable::HitRecord;
+use crate::pdf::cosine_pdf::CosinePDF;
 use crate::texture::{solid_color::SolidColor, Texture};
 use crate::utility::*;
 
@@ -10,19 +11,20 @@ pub struct Lambertian<T: Texture> {
 }
 
 impl<T: Texture> Material for Lambertian<T> {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord, attenuation: &mut Color) -> Option<Ray> {
-        // let uvw = ONB::build_from_w(rec.normal);
-        // let direction = uvw.local(Vec3::rand_cos_dir());
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<ScatterRecord> {
+        Some(ScatterRecord::new_diff(
+            CosinePDF::new(rec.normal),
+            self.albedo.value(rec.u, rec.v, rec.p),
+        ))
+    }
 
-        let mut scatter_direction = rec.normal + Vec3::rand_unit_vector();
-
-        // Catch degenerate scatter direction
-        if scatter_direction.near_zero() {
-            scatter_direction = rec.normal;
+    fn scattering_pdf(&self, r_in: &Ray, rec: &HitRecord, scattered: &Ray) -> f64 {
+        let cosine = Vec3::dot(&rec.normal, &scattered.dir.unit_vector());
+        if cosine.is_sign_negative() {
+            0.0
+        } else {
+            cosine / PI
         }
-
-        *attenuation = self.albedo.value(rec.u, rec.v, rec.p);
-        Some(Ray::new(rec.p, scatter_direction, r_in.tm))
     }
 }
 

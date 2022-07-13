@@ -1,9 +1,10 @@
 use crate::utility::*;
 
+#[derive(Copy, Clone)]
 pub struct ONB {
-    u: Vec3,
-    v: Vec3,
-    w: Vec3,
+    pub u: Vec3,
+    pub v: Vec3,
+    pub w: Vec3,
 }
 
 impl ONB {

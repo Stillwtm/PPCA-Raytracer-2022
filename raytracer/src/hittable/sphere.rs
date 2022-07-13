@@ -1,4 +1,5 @@
 use super::*;
+use crate::basic::onb::ONB;
 use crate::bvh::aabb::AABB;
 use crate::utility::*;
 
@@ -60,7 +61,7 @@ impl<T: Material + Sync + Send> Hittable for Sphere<T> {
             normal: Vec3::default(),
             u,
             v,
-            fornt_face: bool::default(),
+            front_face: bool::default(),
         };
 
         rec.set_face_normal(&r, outward_normal);
@@ -73,5 +74,24 @@ impl<T: Material + Sync + Send> Hittable for Sphere<T> {
             self.center - self.radius,
             self.center + self.radius,
         ))
+    }
+
+    fn pdf_value(&self, orig: &Point3, v: &Vec3) -> f64 {
+        if let Some(rec) = self.hit(&Ray::new(*orig, *v, 0.0), 0.001, INFINITY) {
+            let cos_theta_max =
+                (1.0 - self.radius.powi(2) / (self.center - *orig).length_squared()).sqrt();
+            let solid_angle = 2.0 * PI * (1.0 - cos_theta_max);
+            1.0 / solid_angle
+        } else {
+            0.0
+        }
+    }
+
+    fn random(&self, orig: Vec3) -> Vec3 {
+        let direction = self.center - orig;
+        let distance_squared = direction.length_squared();
+        let uvw = ONB::build_from_w(direction);
+
+        uvw.local(Vec3::rand_to_sphere(self.radius, distance_squared))
     }
 }
