@@ -34,7 +34,7 @@ use rand::Rng;
 fn main() {
     // Image
     const ASPECT_RATIO: f64 = 1.0; //16.0 / 9;
-    const IMAGE_WIDTH: usize = 256;
+    const IMAGE_WIDTH: usize = 1024;
     const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as usize;
     const IMGAE_QUALITY: u8 = 100;
     const SAMPLE_PER_PIXEL: usize = 400;
