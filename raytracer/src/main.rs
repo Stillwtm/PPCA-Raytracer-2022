@@ -1,4 +1,9 @@
 #![allow(unused)]
+#![allow(clippy::many_single_char_names)]
+#![allow(clippy::needless_range_loop)]
+#![allow(clippy::too_many_arguments)]
+#![allow(clippy::suspicious_operation_groupings)]
+
 mod basic;
 mod bvh;
 mod hittable;
@@ -29,10 +34,10 @@ use rand::Rng;
 fn main() {
     // Image
     const ASPECT_RATIO: f64 = 1.0; //16.0 / 9;
-    const IMAGE_WIDTH: usize = 1920;
+    const IMAGE_WIDTH: usize = 1080;
     const IMAGE_HEIGHT: usize = (IMAGE_WIDTH as f64 / ASPECT_RATIO) as usize;
     const IMGAE_QUALITY: u8 = 100;
-    const SAMPLE_PER_PIXEL: usize = 1000;
+    const SAMPLE_PER_PIXEL: usize = 100;
     const MAX_DEPTH: usize = 50;
     const THREAD_NUM: usize = 8;
     let path = "output/output.jpg";
@@ -42,7 +47,7 @@ fn main() {
     print!("{esc}[2J{esc}[1;1H", esc = 27 as char); // Set cursor position as 1,1
 
     // Generate scene
-    let (world, cam) = scene::book2_final_scene(ASPECT_RATIO);
+    let (world, cam) = scene::test_scene(ASPECT_RATIO);
 
     // Generate image
     let thread_pool = multi_thread::gen_img_with_multi_threads(
@@ -51,6 +56,7 @@ fn main() {
         IMAGE_HEIGHT,
         SAMPLE_PER_PIXEL,
         MAX_DEPTH,
+        Color::new(0.7, 0.7, 0.7),
         cam,
         world,
     );

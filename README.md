@@ -15,4 +15,8 @@
 
 - 完成Book2
 
-- 效果图见Action-Artifact
+- 支持.obj格式模型的导入以及材质贴图
+
+- 效果图预览
+
+  ![output](https://s2.loli.net/2022/07/13/vtIg8ezUEuXO1Bo.jpg)

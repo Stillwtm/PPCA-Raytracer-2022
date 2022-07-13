@@ -7,7 +7,9 @@ use crate::hittable::instance::{rotation::RotationY, translation::Translation};
 use crate::hittable::{
     aarect::{XYRect, XZRect, YZRect},
     cuboid::Cuboid,
+    obj_model::ObjModel,
     sphere::Sphere,
+    triangle::Triangle,
 };
 use crate::hittable::{hittable_list::HittableList, Hittable};
 use crate::material::{self, lambertian};
@@ -395,6 +397,59 @@ pub fn book2_final_scene(aspect_ratio: f64) -> (HittableList, Camera) {
 
     // Camera
     let look_from = Point3::new(478.0, 278.0, -600.0);
+    let look_at = Point3::new(278.0, 278.0, 0.0);
+    let vup = Vec3::new(0.0, 1.0, 0.0);
+    let dist_to_focus = 10.0;
+    let aperture = 0.0;
+
+    let cam = Camera::new(
+        look_from,
+        look_at,
+        vup,
+        40.0,
+        aspect_ratio,
+        aperture,
+        dist_to_focus,
+        0.0,
+        1.0,
+    );
+
+    (objects, cam)
+}
+
+pub fn test_scene(aspect_ratio: f64) -> (HittableList, Camera) {
+    // World
+    let mut objects = HittableList::default();
+    let mut world = HittableList::default();
+
+    let red = Lambertian::new_form_color(Color::new(0.65, 0.05, 0.05));
+    let white = Lambertian::new_form_color(Color::new(0.73, 0.73, 0.73));
+    let green = Lambertian::new_form_color(Color::new(0.12, 0.45, 0.15));
+    let light = DiffuseLight::new_form_color(Color::new(7., 7., 7.));
+
+    // objects.add(Arc::new(YZRect::new(0., 555., 0., 555., 555., green)));
+    // objects.add(Arc::new(YZRect::new(0., 555., 0., 555., 0., red)));
+    // objects.add(Arc::new(XZRect::new(
+    //     113.,
+    //     443.,
+    //     127.,
+    //     432.,
+    //     554.,
+    //     light.clone(),
+    // )));
+    // objects.add(Arc::new(XZRect::new(0., 555., 0., 555., 0., white)));
+    // objects.add(Arc::new(XZRect::new(0., 555., 0., 555., 555., white)));
+    // objects.add(Arc::new(XYRect::new(0., 555., 0., 555., 555., white)));
+
+    // let teapot = ObjModel::new_from_file("models/teapot.obj", 1.5, None);
+    // let teapot = ObjModel::new_from_file("models/buddha.obj", 175., None);
+    let teapot =
+        ObjModel::new_from_file_with_texture("models/patrick.obj", 175., "models/patrick.png");
+    let teapot = Translation::new(RotationY::new(teapot, 180.), Vec3::new(227., 50., 227.));
+    objects.add(Arc::new(teapot));
+
+    // Camera
+    let look_from = Point3::new(278.0, 278.0, -800.0);
     let look_at = Point3::new(278.0, 278.0, 0.0);
     let vup = Vec3::new(0.0, 1.0, 0.0);
     let dist_to_focus = 10.0;

@@ -19,6 +19,7 @@ pub fn gen_img_with_multi_threads(
     img_height: usize,
     sample_per_pixel: usize,
     max_depth: usize,
+    background: Color,
     camera: Camera,
     world: HittableList,
 ) -> Vec<(JoinHandle<()>, Receiver<Vec<Color>>)> {
@@ -47,7 +48,6 @@ pub fn gen_img_with_multi_threads(
 
         let (tx, rx) = mpsc::channel();
         let section_world = world.clone();
-        let background = Color::new(0.0, 0.0, 0.0);
         let cam = camera.clone();
         let progress = multiprogress.add(create_progress_bar(
             (img_width * (row_end - row_beg)) as u64,

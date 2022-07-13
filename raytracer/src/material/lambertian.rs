@@ -5,7 +5,7 @@ use crate::utility::*;
 
 #[derive(Copy, Clone)]
 pub struct Lambertian<T: Texture> {
-    pub albedo: T,
+    albedo: T,
 }
 
 impl<T: Texture> Material for Lambertian<T> {

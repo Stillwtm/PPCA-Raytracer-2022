@@ -54,12 +54,7 @@ impl<T: Material + Clone> Cuboid<T> {
                 mat.clone(),
             )),
             Rect::YZRect(YZRect::new(
-                cb_min.y,
-                cb_max.y,
-                cb_min.z,
-                cb_max.z,
-                cb_min.x,
-                mat.clone(),
+                cb_min.y, cb_max.y, cb_min.z, cb_max.z, cb_min.x, mat,
             )),
         ];
         Self {

@@ -15,13 +15,9 @@ impl<T: Hittable> Translation<T> {
 
 impl<T: Hittable> Hittable for Translation<T> {
     fn bounding_box(&self, st_time: f64, ed_time: f64) -> Option<AABB> {
-        match self.obj.bounding_box(st_time, ed_time) {
-            Some(obj_box) => Some(AABB::new(
-                obj_box.minimum + self.offset,
-                obj_box.maximum + self.offset,
-            )),
-            None => None,
-        }
+        self.obj
+            .bounding_box(st_time, ed_time)
+            .map(|obj_box| AABB::new(obj_box.minimum + self.offset, obj_box.maximum + self.offset))
     }
 
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {

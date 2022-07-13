@@ -3,7 +3,9 @@ pub mod constant_medium;
 pub mod cuboid;
 pub mod hittable_list;
 pub mod instance;
+pub mod obj_model;
 pub mod sphere;
+pub mod triangle;
 
 use crate::bvh::aabb::AABB;
 use crate::material::{lambertian::Lambertian, Material};
