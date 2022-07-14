@@ -17,7 +17,9 @@
 
 - 支持.obj格式模型的导入以及材质贴图
 
+- 大概完成了Book3
+
 - 效果图预览
 
 
-![smooth_patrick](https://s2.loli.net/2022/07/13/RO7g5wrohTnLDKp.jpg)
+![3.8 sample1000](https://s2.loli.net/2022/07/14/AHBWZ3prcFajKh7.jpg)

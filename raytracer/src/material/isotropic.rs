@@ -24,8 +24,8 @@ impl Isotropic<SolidColor> {
 
 impl<T: Texture> Material for Isotropic<T> {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<ScatterRecord> {
-        Some(ScatterRecord::new_diff(
-            CosinePDF::new(Vec3::rand_in_unit_sphere()),
+        Some(ScatterRecord::new_spec(
+            Ray::new(rec.p, Vec3::rand_in_unit_sphere(), r_in.tm),
             self.albedo.value(rec.u, rec.v, rec.p),
         ))
     }
