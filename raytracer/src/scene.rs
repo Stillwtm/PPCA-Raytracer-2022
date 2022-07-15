@@ -647,12 +647,12 @@ pub fn final_scene(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
     objects.add(Arc::new(head));
 
     // Add a bit fog
-    let boundary = Sphere::new(Point3::new(0., 0., 0.), 5000., Dielectric::new(1.5));
-    world.add(Arc::new(ConstantMedium::new_from_color(
-        boundary,
-        0.0001,
-        Color::new(1.0, 1.0, 1.0),
-    )));
+    // let boundary = Sphere::new(Point3::new(0., 0., 0.), 5000., Dielectric::new(1.5));
+    // world.add(Arc::new(ConstantMedium::new_from_color(
+    //     boundary,
+    //     0.0001,
+    //     Color::new(1.0, 1.0, 1.0),
+    // )));
 
     // Bvh
     world.add(Arc::new(BvhNode::new_from_list(&mut objects, 0.0, 1.0)));
