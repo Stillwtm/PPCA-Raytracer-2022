@@ -16,10 +16,12 @@ use crate::texture::Texture;
 use crate::utility::*;
 use console::style;
 use image::RgbImage;
+use rand::Rng;
 use tobj;
 
 pub struct ObjModel {
     triangles: BvhNode,
+    pub center: Point3,
 }
 
 impl ObjModel {
@@ -82,8 +84,10 @@ impl ObjModel {
             ),
         }
 
+        let triangles = BvhNode::new_from_list(&mut tris_list, 0.0, 1.0);
         Self {
-            triangles: BvhNode::new_from_list(&mut tris_list, 0.0, 1.0),
+            center: (triangles.node_box.maximum + triangles.node_box.minimum) / 2.0,
+            triangles,
         }
     }
 
@@ -167,8 +171,99 @@ impl ObjModel {
             ),
         }
 
+        let triangles = BvhNode::new_from_list(&mut tris_list, 0.0, 1.0);
         Self {
-            triangles: BvhNode::new_from_list(&mut tris_list, 0.0, 1.0),
+            center: (triangles.node_box.maximum + triangles.node_box.minimum) / 2.0,
+            triangles,
+        }
+    }
+
+    pub fn new_from_file_with_rand_texture(file_obj: &str, scale: f64, file_texture: &str) -> Self {
+        println!("🎰 Imortinging model...");
+
+        let mut tris_list = HittableList::default();
+
+        let mut rng = rand::thread_rng();
+
+        let mut img = RgbImage::default();
+        img = match image::open(file_texture) {
+            Ok(img) => img,
+            Err(_) => panic!("Couldn't open file: {}", file_texture),
+        }
+        .into_rgb8();
+
+        match tobj::load_obj(
+            file_obj,
+            &tobj::LoadOptions {
+                single_index: true,
+                triangulate: true,
+                ..Default::default()
+            },
+        ) {
+            Ok((models, mats)) => {
+                for (model_idx, model) in models.iter().enumerate() {
+                    let mesh = &model.mesh;
+
+                    for idx in 0..mesh.indices.len() / 3 {
+                        let i = mesh.indices[idx * 3] as usize;
+                        let j = mesh.indices[idx * 3 + 1] as usize;
+                        let k = mesh.indices[idx * 3 + 2] as usize;
+
+                        // 处理纹理
+                        let u1 = rng.gen::<f64>();
+                        let v1 = rng.gen::<f64>();
+                        let u2 = rng.gen::<f64>();
+                        let v2 = rng.gen::<f64>();
+                        let u3 = rng.gen::<f64>();
+                        let v3 = rng.gen::<f64>();
+                        let text = ObjTexture::new(
+                            u1,
+                            v1,
+                            u2 - u1,
+                            u3 - u1,
+                            v2 - v1,
+                            v3 - v1,
+                            img.clone(),
+                        );
+
+                        // 处理材质
+                        let mat = Lambertian::new(text);
+
+                        // 处理模型三角面
+                        tris_list.add(Arc::new(Triangle::new(
+                            [
+                                Point3::new(
+                                    mesh.positions[3 * i] as f64,
+                                    mesh.positions[3 * i + 1] as f64,
+                                    mesh.positions[3 * i + 2] as f64,
+                                ) * scale,
+                                Point3::new(
+                                    mesh.positions[3 * j] as f64,
+                                    mesh.positions[3 * j + 1] as f64,
+                                    mesh.positions[3 * j + 2] as f64,
+                                ) * scale,
+                                Point3::new(
+                                    mesh.positions[3 * k] as f64,
+                                    mesh.positions[3 * k + 1] as f64,
+                                    mesh.positions[3 * k + 2] as f64,
+                                ) * scale,
+                            ],
+                            mat,
+                        )));
+                    }
+                }
+            }
+            Err(_) => println!(
+                "  Error: {}{}",
+                style("Failed to load OBJ file: ").red(),
+                style(file_obj).yellow()
+            ),
+        }
+
+        let triangles = BvhNode::new_from_list(&mut tris_list, 0.0, 1.0);
+        Self {
+            center: (triangles.node_box.maximum + triangles.node_box.minimum) / 2.0,
+            triangles,
         }
     }
 }

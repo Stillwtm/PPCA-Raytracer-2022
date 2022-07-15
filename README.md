@@ -19,7 +19,4 @@
 
 - 大概完成了Book3
 
-- 效果图预览
-
-
-![3.8 sample1000](https://s2.loli.net/2022/07/14/AHBWZ3prcFajKh7.jpg)
+- 设计最终场景

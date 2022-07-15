@@ -5,6 +5,7 @@ use crate::bvh::aabb::AABB;
 use crate::material::Material;
 use crate::utility::*;
 
+#[derive(Clone)]
 pub enum Rect<T: Material> {
     XYRect(XYRect<T>),
     XZRect(XZRect<T>),
@@ -31,6 +32,7 @@ impl<T: Material + Sync + Send> Hittable for Rect<T> {
 
 ////////////////////////////////xy_rect////////////////////////////////
 
+#[derive(Clone)]
 pub struct XYRect<T: Material> {
     x0: f64,
     x1: f64,
@@ -85,10 +87,32 @@ impl<T: Material + Sync + Send> Hittable for XYRect<T> {
         rec.set_face_normal(r, outward_normal);
         Some(rec)
     }
+
+    fn pdf_value(&self, orig: &Point3, v: &Vec3) -> f64 {
+        if let Some(rec) = self.hit(&Ray::new(*orig, *v, 0.0), 0.001, INFINITY) {
+            let area = ((self.x1 - self.x0) * (self.y1 - self.y0)).abs();
+            let distance_squared = rec.t.powi(2) * v.length_squared();
+            let cosine = Vec3::dot(&v, &rec.normal).abs() / v.length();
+
+            distance_squared / (cosine * area)
+        } else {
+            0.0
+        }
+    }
+
+    fn random(&self, orig: Vec3) -> Vec3 {
+        let mut rng = rand::thread_rng();
+        Point3::new(
+            rng.gen_range(self.x0..self.x1),
+            rng.gen_range(self.y0..self.y1),
+            self.z,
+        ) - orig
+    }
 }
 
 ////////////////////////////////xz_rect//////////////////////////////
 
+#[derive(Clone)]
 pub struct XZRect<T: Material> {
     x0: f64,
     x1: f64,
@@ -168,6 +192,7 @@ impl<T: Material + Sync + Send> Hittable for XZRect<T> {
 
 ////////////////////////////////yz_rect//////////////////////////////
 
+#[derive(Clone)]
 pub struct YZRect<T: Material> {
     y0: f64,
     y1: f64,
@@ -221,5 +246,26 @@ impl<T: Material + Sync + Send> Hittable for YZRect<T> {
         let outward_normal = Vec3::new(1.0, 0.0, 0.0);
         rec.set_face_normal(r, outward_normal);
         Some(rec)
+    }
+
+    fn pdf_value(&self, orig: &Point3, v: &Vec3) -> f64 {
+        if let Some(rec) = self.hit(&Ray::new(*orig, *v, 0.0), 0.001, INFINITY) {
+            let area = ((self.y1 - self.y0) * (self.z1 - self.z0)).abs();
+            let distance_squared = rec.t.powi(2) * v.length_squared();
+            let cosine = Vec3::dot(&v, &rec.normal).abs() / v.length();
+
+            distance_squared / (cosine * area)
+        } else {
+            0.0
+        }
+    }
+
+    fn random(&self, orig: Vec3) -> Vec3 {
+        let mut rng = rand::thread_rng();
+        Point3::new(
+            self.x,
+            rng.gen_range(self.y0..self.y1),
+            rng.gen_range(self.z0..self.z1),
+        ) - orig
     }
 }

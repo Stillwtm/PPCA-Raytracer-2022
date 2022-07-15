@@ -1,3 +1,5 @@
+use rand::Rng;
+
 use super::{HitRecord, Hittable};
 use crate::bvh::aabb::AABB;
 use crate::material::Material;
@@ -9,6 +11,7 @@ pub struct Triangle<T: Material> {
     mat: T,
     v: Vec3,
     w: Vec3,
+    area: f64,
 }
 
 impl<T: Material> Triangle<T> {
@@ -23,12 +26,28 @@ impl<T: Material> Triangle<T> {
         let mut w = Vec3::cross(&normal, &(ver[2] - ver[0]));
         w /= Vec3::dot(&(ver[1] - ver[0]), &w);
 
+        let a = ((ver[0].x - ver[1].x).powi(2)
+            + (ver[0].y - ver[1].y).powi(2)
+            + (ver[0].z - ver[1].z).powi(2))
+        .sqrt();
+        let b = ((ver[1].x - ver[2].x).powi(2)
+            + (ver[1].y - ver[2].y).powi(2)
+            + (ver[1].z - ver[2].z).powi(2))
+        .sqrt();
+        let c = ((ver[2].x - ver[0].x).powi(2)
+            + (ver[2].y - ver[0].y).powi(2)
+            + (ver[2].z - ver[0].z).powi(2))
+        .sqrt();
+        let p = (a + b + c) / 2.0;
+        let area = (p * (p - a) * (p - b) * (p - c)).sqrt();
+
         Self {
             ver,
             normal,
             mat,
             v,
             w,
+            area,
         }
     }
 }
@@ -51,7 +70,7 @@ impl<T: Material + Sync + Send> Hittable for Triangle<T> {
 
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         // let origin = r.orig;
-        let t = Vec3::dot(&r.dir, &&self.normal);
+        let t = Vec3::dot(&r.dir, &self.normal);
         if t == 0.0 {
             // 光线和三角形平行
             return None;
@@ -82,5 +101,28 @@ impl<T: Material + Sync + Send> Hittable for Triangle<T> {
             }
         }
         None
+    }
+
+    fn pdf_value(&self, orig: &Point3, v: &Vec3) -> f64 {
+        if let Some(rec) = self.hit(&Ray::new(*orig, *v, 0.0), 0.001, INFINITY) {
+            let distance_squared = rec.t.powi(2) * v.length_squared();
+            let cosine = Vec3::dot(&v, &rec.normal).abs() / v.length();
+
+            distance_squared / (cosine * self.area)
+        } else {
+            0.0
+        }
+    }
+
+    fn random(&self, orig: Vec3) -> Vec3 {
+        let mut rng = rand::thread_rng();
+        let mut k1 = rng.gen::<f64>();
+        let mut k2 = rng.gen::<f64>();
+        if k1 + k2 > 1. {
+            k1 = 1. - k1;
+            k2 = 1. - k2;
+        }
+
+        k1 * (self.ver[1] - self.ver[0]) + k1 * (self.ver[2] - self.ver[0]) - orig
     }
 }

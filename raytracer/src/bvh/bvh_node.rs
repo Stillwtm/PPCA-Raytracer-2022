@@ -10,7 +10,7 @@ use std::sync::Arc;
 pub struct BvhNode {
     left: Option<Arc<dyn Hittable>>,
     right: Option<Arc<dyn Hittable>>,
-    node_box: AABB,
+    pub node_box: AABB,
 }
 
 impl BvhNode {

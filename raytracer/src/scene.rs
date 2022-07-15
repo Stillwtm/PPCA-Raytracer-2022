@@ -4,7 +4,7 @@ use crate::hittable::constant_medium::ConstantMedium;
 use crate::hittable::hittable_list;
 use crate::hittable::instance::flip_face::FlipFace;
 use crate::hittable::instance::motion::Motion;
-use crate::hittable::instance::rotation::RotationX;
+use crate::hittable::instance::rotation::{RotationX, RotationZ};
 use crate::hittable::instance::{rotation::RotationY, translation::Translation};
 use crate::hittable::{
     aarect::{XYRect, XZRect, YZRect},
@@ -20,7 +20,7 @@ use crate::material::{
     Material,
 };
 use crate::texture::checker_texture::CheckerTexture;
-use crate::texture::image_texture::ImageTexture;
+use crate::texture::image_texture::{ImageTexture, RandImageTexture};
 use crate::texture::noise_texture::NoiseTexture;
 use crate::texture::solid_color::SolidColor;
 use crate::utility::*;
@@ -444,48 +444,220 @@ pub fn book2_final_scene(aspect_ratio: f64) -> (HittableList, Camera) {
     (objects, cam)
 }
 
-pub fn test_scene(aspect_ratio: f64) -> (HittableList, Camera) {
+pub fn test_scene(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
     // World
     let mut objects = HittableList::default();
     let mut world = HittableList::default();
+    let mut lights = HittableList::default();
 
-    let red = Lambertian::new_form_color(Color::new(0.65, 0.05, 0.05));
-    let white = Lambertian::new_form_color(Color::new(0.73, 0.73, 0.73));
-    let green = Lambertian::new_form_color(Color::new(0.12, 0.45, 0.15));
-    let light = DiffuseLight::new_form_color(Color::new(7., 7., 7.));
-
-    // objects.add(Arc::new(YZRect::new(0., 555., 0., 555., 555., green)));
-    // objects.add(Arc::new(YZRect::new(0., 555., 0., 555., 0., red)));
-    // objects.add(Arc::new(XZRect::new(
-    //     113.,
-    //     443.,
-    //     127.,
-    //     432.,
-    //     554.,
+    // 灯光
+    let light = DiffuseLight::new_form_color(Color::new(10., 10., 10.));
+    let light_ball = XZRect::new(400., 1400., -200., 1400., 1800., light);
+    objects.add(Arc::new(FlipFace::new(light_ball.clone())));
+    // let light_ball = Sphere::new(
+    //     Point3::new(200., 1800., 200.),
+    //     500.,
     //     light.clone(),
-    // )));
-    // objects.add(Arc::new(XZRect::new(0., 555., 0., 555., 0., white)));
-    // objects.add(Arc::new(XZRect::new(0., 555., 0., 555., 555., white)));
-    // objects.add(Arc::new(XYRect::new(0., 555., 0., 555., 555., white)));
+    // );
+    // objects.add(Arc::new(light_ball.clone()));
 
-    // let teapot = ObjModel::new_from_file("models/teapot.obj", 1.5, None);
-    let pertext = NoiseTexture::new(0.1);
-    let mat = Lambertian::new(pertext);
-    let teapot = ObjModel::new_from_file("models/head.obj", 10., mat);
-    // let teapot =
-    // ObjModel::new_from_file_with_texture("models/patrick.obj", 175., "models/patrick.png");
-    // let teapot = Translation::new(RotationY::new(teapot, 180.), Vec3::new(227., 50., 227.));
+    // 地面
+    // let white = Lambertian::new_form_color(Color::new(0.73, 0.73, 0.73));
+    let light_yellow = Lambertian::new_form_color(Color::new(197., 188., 164.) / 255.);
+    objects.add(Arc::new(XZRect::new(
+        -10000.,
+        10000.,
+        -10000.,
+        25000.,
+        0.,
+        light_yellow,
+    )));
 
-    let teapot = Translation::new(
-        RotationY::new(RotationX::new(teapot, -90.), 180.),
-        Vec3::new(527., 50., 527.),
+    // 三个柱子
+    let cube_diff_mat = Lambertian::new_form_color(Color::new(0.73, 0.73, 0.73));
+    let cube_diff = ObjModel::new_from_file("models/cube_diff.obj", 10., cube_diff_mat);
+    let offset = Vec3::new(1488., 0., 800.);
+    let cube_diff = Translation::new(RotationY::new(cube_diff, 180.), offset);
+    objects.add(Arc::new(cube_diff));
+
+    // 一个金属柱子
+    let cube_spec_mat = Metal::new(Color::new(0.8, 0.85, 0.88), 0.0);
+    let cube_spec = Cuboid::new(
+        Point3::new(-150., 0., -150.),
+        Point3::new(150., 400., 150.),
+        cube_spec_mat,
     );
+    let cube_spec = RotationY::new(cube_spec, 0.);
+    let cube_spec = Translation::new(cube_spec, Point3::new(1800., 0., 1000.));
+    objects.add(Arc::new(cube_spec));
 
-    objects.add(Arc::new(teapot));
+    // 一个金属柱子
+    let cube_spec_mat = Metal::new(Color::new(0.8, 0.85, 0.88), 0.0);
+    let cube_spec = Cuboid::new(
+        Point3::new(-150., 0., -150.),
+        Point3::new(150., 550., 150.),
+        cube_spec_mat,
+    );
+    let cube_spec = RotationY::new(cube_spec, -18.);
+    let cube_spec = Translation::new(cube_spec, Point3::new(800., 0., 500.));
+    objects.add(Arc::new(cube_spec));
+
+    // 镜面
+    let mirr_mat = Metal::new(Color::new(0.8, 0.85, 0.88), 0.0);
+    let mirror = XYRect::new(-10000., 10000., -10000., 10000., 2500., mirr_mat);
+    objects.add(Arc::new(mirror));
+
+    let green_mat = Lambertian::new(SolidColor::new_rgb(0.7, 0.85, 0.5));
+    let green_mat1 = Metal::new(Color::new(0.5, 0.8, 0.4), 1.0);
+    let yellow_mat = Lambertian::new(SolidColor::new(Color::new(198., 145., 69.) / 255.));
+    let yellow_mat1 = Metal::new(Color::new(198., 145., 69.) / 255., 1.0);
+    let grey_mat = Lambertian::new(SolidColor::new(Color::new(98., 99., 100.) / 255.));
+    let grey_mat1 = Metal::new(Color::new(98., 99., 100.) / 255., 1.0);
+    let glass = Dielectric::new(1.5);
+    let bronze_mat = Lambertian::new(RandImageTexture::new_form_file("models/bronze.jpg"));
+    let gold_mat = Lambertian::new(RandImageTexture::new_form_file("models/gold.jpeg"));
+
+    // 1: rat
+    let head = ObjModel::new_from_file("models/1.obj", 10., green_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(1788., 150., 700.);
+    let head = Translation::new(
+        RotationY::new(RotationX::new(Translation::new(head, offset1), -90.), 180.),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 2: cattle
+    let head = ObjModel::new_from_file("models/2.obj", 10., green_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(1388., 550., 400.);
+    let head = Translation::new(
+        RotationY::new(RotationX::new(Translation::new(head, offset1), -90.), -90.),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 3: tiger
+    let head = ObjModel::new_from_file("models/3.obj", 10., grey_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(150., 150., 150.);
+    let head = Translation::new(
+        RotationZ::new(
+            RotationY::new(RotationX::new(Translation::new(head, offset1), 0.), -90.),
+            -90.,
+        ),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 4: rabbit
+    let head = ObjModel::new_from_file("models/4.obj", 10., grey_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(1800., 120., 200.);
+    let head = Translation::new(
+        RotationY::new(RotationX::new(Translation::new(head, offset1), -90.), 80.),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 5: dragon
+    let head = ObjModel::new_from_file("models/5.obj", 10., yellow_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(1188., 850., 700.);
+    let head = Translation::new(
+        RotationY::new(RotationX::new(Translation::new(head, offset1), -90.), 180.),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 6: snake
+    let head = ObjModel::new_from_file("models/6.obj", 10., yellow_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(460., 350., 400.);
+    let head = Translation::new(
+        RotationY::new(RotationX::new(Translation::new(head, offset1), -90.), 0.),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 7: horse
+    let head = ObjModel::new_from_file("models/7.obj", 10., green_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(1000., 100., 350.);
+    let head = Translation::new(
+        RotationY::new(RotationX::new(Translation::new(head, offset1), -90.), -30.),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 8: goat
+    let head = ObjModel::new_from_file("models/8.obj", 10., green_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(1800., 570., 1000.);
+    let head = Translation::new(
+        RotationY::new(RotationX::new(Translation::new(head, offset1), -90.), -100.),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 9: monkey
+    let head = ObjModel::new_from_file("models/9.obj", 10., yellow_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(1450., 50., 200.);
+    let head = Translation::new(
+        RotationY::new(RotationX::new(Translation::new(head, offset1), -90.), -140.),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 10: chicken
+    let head = ObjModel::new_from_file("models/10.obj", 10., green_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(2100., 150., 800.);
+    let head = Translation::new(
+        RotationY::new(
+            RotationZ::new(RotationX::new(Translation::new(head, offset1), -90.), -90.),
+            180.,
+        ),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 11: dog
+    let head = ObjModel::new_from_file("models/11.obj", 10., grey_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(150., 180., 800.);
+    let head = Translation::new(
+        RotationY::new(RotationX::new(Translation::new(head, offset1), -90.), 200.),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // 12: pig
+    let head = ObjModel::new_from_file("models/12.obj", 10., grey_mat1);
+    let offset1 = Vec3::new(0., 0., 0.) - head.center;
+    let offset2 = Vec3::new(800., 600., 500.);
+    let head = Translation::new(
+        RotationY::new(RotationX::new(Translation::new(head, offset1), -90.), -90.),
+        offset2,
+    );
+    objects.add(Arc::new(head));
+
+    // Add a bit fog
+    // let boundary = Sphere::new(Point3::new(0., 0., 0.), 5000., Dielectric::new(1.5));
+    // objects.add(Arc::new(ConstantMedium::new_from_color(
+    //     boundary,
+    //     0.0001,
+    //     Color::new(1.0, 1.0, 1.0),
+    // )));
+
+    // Lights
+    lights.add(Arc::new(light_ball));
+    // lights.add(Arc::new(XZRect::new(213., 343., 227., 332., 554., light)));
 
     // Camera
-    let look_from = Point3::new(278.0, 278.0, -800.0);
-    let look_at = Point3::new(278.0, 278.0, 0.0);
+    let look_from = Point3::new(900.0, 1250.0, -1300.0);
+    let look_at = Point3::new(1000.0, 600.0, 150.0);
     let vup = Vec3::new(0.0, 1.0, 0.0);
     let dist_to_focus = 10.0;
     let aperture = 0.0;
@@ -502,5 +674,9 @@ pub fn test_scene(aspect_ratio: f64) -> (HittableList, Camera) {
         1.0,
     );
 
-    (objects, cam)
+    (objects, lights, cam)
 }
+
+// pub fn final_scene(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
+
+// }
