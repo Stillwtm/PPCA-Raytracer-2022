@@ -444,7 +444,7 @@ pub fn book2_final_scene(aspect_ratio: f64) -> (HittableList, Camera) {
     (objects, cam)
 }
 
-pub fn test_scene(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
+pub fn final_scene(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
     // World
     let mut objects = HittableList::default();
     let mut world = HittableList::default();
@@ -464,7 +464,7 @@ pub fn test_scene(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
     // 地面
     // let white = Lambertian::new_form_color(Color::new(0.73, 0.73, 0.73));
     let light_yellow = Lambertian::new_form_color(Color::new(197., 188., 164.) / 255.);
-    objects.add(Arc::new(XZRect::new(
+    world.add(Arc::new(XZRect::new(
         -10000.,
         10000.,
         -10000.,
@@ -615,8 +615,11 @@ pub fn test_scene(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
     let offset1 = Vec3::new(0., 0., 0.) - head.center;
     let offset2 = Vec3::new(2100., 150., 800.);
     let head = Translation::new(
-        RotationY::new(
-            RotationZ::new(RotationX::new(Translation::new(head, offset1), -90.), -90.),
+        RotationZ::new(
+            RotationY::new(
+                RotationZ::new(RotationX::new(Translation::new(head, offset1), -90.), -90.),
+                180.,
+            ),
             180.,
         ),
         offset2,
@@ -644,16 +647,18 @@ pub fn test_scene(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
     objects.add(Arc::new(head));
 
     // Add a bit fog
-    // let boundary = Sphere::new(Point3::new(0., 0., 0.), 5000., Dielectric::new(1.5));
-    // objects.add(Arc::new(ConstantMedium::new_from_color(
-    //     boundary,
-    //     0.0001,
-    //     Color::new(1.0, 1.0, 1.0),
-    // )));
+    let boundary = Sphere::new(Point3::new(0., 0., 0.), 5000., Dielectric::new(1.5));
+    world.add(Arc::new(ConstantMedium::new_from_color(
+        boundary,
+        0.0001,
+        Color::new(1.0, 1.0, 1.0),
+    )));
+
+    // Bvh
+    world.add(Arc::new(BvhNode::new_from_list(&mut objects, 0.0, 1.0)));
 
     // Lights
     lights.add(Arc::new(light_ball));
-    // lights.add(Arc::new(XZRect::new(213., 343., 227., 332., 554., light)));
 
     // Camera
     let look_from = Point3::new(900.0, 1250.0, -1300.0);
@@ -674,9 +679,5 @@ pub fn test_scene(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
         1.0,
     );
 
-    (objects, lights, cam)
+    (world, lights, cam)
 }
-
-// pub fn final_scene(aspect_ratio: f64) -> (HittableList, HittableList, Camera) {
-
-// }
